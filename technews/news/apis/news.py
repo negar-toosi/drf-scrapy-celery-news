@@ -7,19 +7,25 @@ from technews.api.pagination import(
     LimitOffsetPagination,
     get_paginated_response
     )
-from technews.news.models import News
+from technews.news.models import News, Tags
 
 from technews.news.selectors.news import news_get, news_list
 from technews.news.services.news import news_create
 
 from drf_spectacular.utils import extend_schema
 
+class TagsSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Tags
+            fields = ("name",)
 
 class NewsDetailApi(APIView):
+
     class Pagination(LimitOffsetPagination):
         default = 1
 
     class OutputSerializer(serializers.ModelSerializer):
+        tags = TagsSerializer(many=True)
         class Meta:
             model = News
             exclude = ['status', 'created_at', 'summary']
@@ -62,19 +68,25 @@ class NewsListApi(APIView):
     
 
 class NewsCreateApi(APIView):
-    class InputSerializer(serializers.ModelSerializer):
-        class Meta:
-            model = News
-            exclude = ['updated_at','status']
+
+    class InputSerializer(serializers.Serializer):
+        title = serializers.CharField(max_length=256)
+        content = serializers.CharField()
+        summary = serializers.CharField()
+        source = serializers.URLField()
+        tags = serializers.ListField(
+            child=serializers.CharField(max_length=100), allow_empty=True
+        )
+        published_at = serializers.DateTimeField()
     @extend_schema(request=InputSerializer)
     def post(self, request):
-        serializer = self.InputSerializer(data=request)
+        serializer = self.InputSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = news_create(
-            **serializer.validation_data
+        news = news_create(
+            **serializer.validated_data
         )
 
-        data = NewsDetailApi.OutputSerializer(user).data
+        data = NewsDetailApi.OutputSerializer(news).data
 
         return Response(data)

@@ -21,7 +21,7 @@ class News(BaseModel):
         related_name='news' # Allows reverse access
         )
     published_at = models.DateTimeField(null=True, blank=True) 
-    status = models.BooleanField(default=False) # Publication status: True = Published, False = Draft
+    status = models.BooleanField(default=True) # Publication status: True = Published, False = Draft
 
     class Meta:
         db_table_comment = "Table for storing news posts"
