@@ -12,22 +12,25 @@ from technews.news.models import News
 from technews.news.selectors.news import news_get, news_list
 from technews.news.services.news import news_create
 
+from drf_spectacular.utils import extend_schema
+
+
 class NewsDetailApi(APIView):
     class Pagination(LimitOffsetPagination):
         default = 1
 
     class OutputSerializer(serializers.ModelSerializer):
         class Meta:
-            models = News
-            exclude = ['status', 'created_at', 'summery']
-
+            model = News
+            exclude = ['status', 'created_at', 'summary']
+    @extend_schema(responses=OutputSerializer)
     def get(self, request, news_id):
         news = news_get(news_id)
 
         if news is None:
             raise Http404
         
-        data = self.OutputSerializer(user).data
+        data = self.OutputSerializer(news).data
 
         return Response(data)
 
@@ -40,9 +43,9 @@ class NewsListApi(APIView):
 
     class OutputSerializer(serializers.ModelSerializer):
         class Meta:
-            models = News
+            model = News
             fields = ['title', 'summary', 'source', 'tags', 'published_at']
-
+    @extend_schema(request=FilterSerializer, responses=OutputSerializer)
     def get(self, request):
         filters_serializer = self.FilterSerializer(data=request.query_params)
         filters_serializer.is_valid(raise_exception=True)
@@ -61,9 +64,9 @@ class NewsListApi(APIView):
 class NewsCreateApi(APIView):
     class InputSerializer(serializers.ModelSerializer):
         class Meta:
-            models = News
+            model = News
             exclude = ['updated_at','status']
-
+    @extend_schema(request=InputSerializer)
     def post(self, request):
         serializer = self.InputSerializer(data=request)
         serializer.is_valid(raise_exception=True)
