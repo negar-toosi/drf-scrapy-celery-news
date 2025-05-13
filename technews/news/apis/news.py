@@ -40,32 +40,67 @@ class NewsDetailApi(APIView):
 
         return Response(data)
 
+# class NewsListApi(APIView):
+#     class Pagination(LimitOffsetPagination):
+#         default_limit = 5
+
+#     class FilterSerializer(serializers.Serializer):
+#         tag = serializers.CharField(max_length=256)
+#         search_content = serializers.CharField(required=False)
+#     class OutputSerializer(serializers.ModelSerializer):
+#         class Meta:
+#             model = News
+#             fields = ['title', 'summary', 'source', 'tags', 'published_at']
+#     @extend_schema(request=FilterSerializer, responses=OutputSerializer,
+#                    parameters=[
+#         OpenApiParameter(name='tag', required=False, type=str, location=OpenApiParameter.QUERY),
+#         OpenApiParameter(name='search_content', required=False, type=str, location=OpenApiParameter.QUERY),
+#     ])
+#     def get(self, request):
+#         filters_serializer = self.FilterSerializer(data=request.query_params)
+#         filters_serializer.is_valid(raise_exception=True)
+
+#         news = news_list(filters=filters_serializer.validation_data)
+
+#         return get_paginated_response(
+#             pagination_class = self.Pagination,
+#             serializer_class = self.OutputSerializer,
+#             queryset = news,
+#             request = request,
+#             view = self
+#         )
+    
 class NewsListApi(APIView):
     class Pagination(LimitOffsetPagination):
         default_limit = 5
 
     class FilterSerializer(serializers.Serializer):
-        tag = serializers.CharField(max_length=256)
+        tag = serializers.CharField(required=False)
+        content = serializers.CharField(required=False)
 
     class OutputSerializer(serializers.ModelSerializer):
         class Meta:
             model = News
             fields = ['title', 'summary', 'source', 'tags', 'published_at']
-    @extend_schema(request=FilterSerializer, responses=OutputSerializer)
+
+    @extend_schema(
+        request=None,
+        parameters=[FilterSerializer],
+        responses=OutputSerializer(many=True),
+    )
     def get(self, request):
         filters_serializer = self.FilterSerializer(data=request.query_params)
         filters_serializer.is_valid(raise_exception=True)
 
-        news = news_list(filters=filters_serializer.validation_data)
+        news = news_list(filters=filters_serializer.validated_data)
 
         return get_paginated_response(
-            pagination_class = self.Pagination,
-            serializer_class = self.OutputSerializer,
-            queryset = news,
-            request = request,
-            view = self
+            pagination_class=self.Pagination,
+            serializer_class=self.OutputSerializer,
+            queryset=news,
+            request=request,
+            view=self
         )
-    
 
 class NewsCreateApi(APIView):
 
