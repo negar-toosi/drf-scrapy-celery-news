@@ -10,19 +10,7 @@ def news_get(news_id) -> Optional[News]:
     return news
 
 def news_list(*, filters: dict) -> News.objects.all().__class__:
-    queryset = News.objects.prefetch_related("tags").all()
-
-    tag = filters.get("tag")
-    tags = filters.get("tags")
-    content = filters.get("content")
-
-    if tag:
-        queryset = queryset.filter(tags__name__icontains=tag)
-
-    if tags:
-        queryset = queryset.filter(tags__name__in=tags)
-
-    if content:
-        queryset = queryset.filter(content__icontains=content)
-
+    queryset = News.objects.prefetch_related("tags").filter(status=True)
+    news_filter = NewsFilter(filters,queryset=queryset)
+    queryset = news_filter.qs
     return queryset.distinct()

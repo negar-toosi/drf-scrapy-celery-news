@@ -8,7 +8,8 @@ class Tags(models.Model):
 
     class Meta:
         db_table_comment = "Stores tags used to label news articles."
-
+    def __str__(self):
+        return self.name
 class News(BaseModel):
     title = models.CharField(max_length=256)
     content = models.TextField()
@@ -21,7 +22,7 @@ class News(BaseModel):
         related_name='news' # Allows reverse access
         )
     published_at = models.DateTimeField(null=True, blank=True) 
-    status = models.BooleanField(default=True) # Publication status: True = Published, False = Draft
+    status = models.BooleanField(default=False) # Publication status: True = Published, False = Draft
 
     class Meta:
         db_table_comment = "Table for storing news posts"
@@ -31,12 +32,6 @@ class News(BaseModel):
             models.UniqueConstraint(
                 fields = ["title","source"], 
                 name = 'unique_news_per_source'),
-            
-            # Ensures that a news article marked as published (status=True) must have a published date
-            models.CheckConstraint(
-                check = Q(status=True) & Q(published_at__isnull=False),
-                name = "published_news_must_have_date"
-            ),
         ]
 
     def __str__(self):
