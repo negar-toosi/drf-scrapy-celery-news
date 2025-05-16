@@ -20,3 +20,15 @@ rpds-py==0.24.0
 # --- Utility Libraries ---
 attrs==25.3.0        
 inflection==0.5.1    
+
+# --- Django Add-ons ---
+django-environ==0.12.0
+django-filter==25.1
+
+# --- Misc ---
+charset-normalizer==3.4.2
+certifi==2025.4.26
+filelock==3.18.0
+typing_extensions==4.13.2
+setuptools==80.7.1
+tzdata==2025.2
