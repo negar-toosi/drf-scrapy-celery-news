@@ -39,7 +39,7 @@ class NewsDetailApi(APIView):
 
 class NewsListApi(APIView):
     class Pagination(LimitOffsetPagination):
-        default_limit = 5
+        default_limit = 15
 
     class FilterSerializer(serializers.Serializer):
         tag = serializers.CharField(required=False)
