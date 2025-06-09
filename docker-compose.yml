@@ -1,0 +1,24 @@
+services:
+  db:
+    image: postgres:16
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB="technews"
+      - POSTGRES_USER="user"
+      - POSTGRES_PASSWORD="password"
+  
+  django:
+    build:
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - 8000:8000
+    environment:
+      - DATABASE_URL=psql://user:password@db:5432/technews
+    depends_on:
+      - db
+      
+
+    

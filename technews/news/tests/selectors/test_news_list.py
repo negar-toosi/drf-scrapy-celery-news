@@ -39,8 +39,8 @@ class TestNewsList(TestCase):
     def test_filters_by_content_and_exclude_content(self):
         news = NewsFactory.create(content='python is a programming language',status=True)
 
-        result1 = news_list(filter={'content':'python','exclude_content':'programming'})
-        result2 = news_list(filter={'content':'python','exclude_content':'Released'})
+        result1 = news_list(filters={'content':'python','exclude_content':'programming'})
+        result2 = news_list(filters={'content':'python','exclude_content':'Released'})
 
         self.assertNotIn(news, result1)
         self.assertIn(news, result2)
